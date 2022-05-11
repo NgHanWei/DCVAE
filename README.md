@@ -35,3 +35,15 @@ Arguments:
 -features FEATURES      Set the desired number of features to extract from the signal
 
 ```
+
+### DualChainVAE
+The DualChainVAE can be found implemented in `dual_vae_torch.py`.
+```
+usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES]
+
+Arguments:
+-subj SUBJ              Set the subject number to run feature extraction on
+-epochs EPOCHS          Set the number of epochs for which to train the VAE
+-features FEATURES      Set the desired number of features to extract from the signal
+
+```
