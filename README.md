@@ -21,3 +21,5 @@ The following command will read the raw dataset from the `$source` folder, and o
 ```
 python preprocess_h5_smt.py $source $target
 ```
+
+## Training and Evaluation
