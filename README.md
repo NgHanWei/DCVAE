@@ -16,7 +16,7 @@ pip install -r requirements.txt
 Download the raw dataset from the resources above, and save them to the same folder. To conserve space, you may only download files that ends with `EEG_MI.mat`.
 
 ### Pre-process raw dataset
-The following command will read the raw dataset from the $source folder, and output the pre-processed data KU_mi_smt.h5 into the $target folder.
+The following command will read the raw dataset from the `$source` folder, and output the pre-processed data `KU_mi_smt.h5` into the `$target` folder.
 
 ```
 python preprocess_h5_smt.py $source $target
