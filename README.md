@@ -36,6 +36,15 @@ Arguments:
 
 ```
 
+Final results may be found in the following files:
+```
+vae_output_LDA          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
+vae_output_NLL          Reports the test negative log-likeilhood approximated by the total loss
+vae_output_recon        Reports the test reconstruction loss by the final trained model
+
+vae_torch.pt            Final saved model weights
+```
+
 ### DualChainVAE
 The DualChainVAE can be found implemented in `dual_vae_torch.py`.
 ```
@@ -50,4 +59,13 @@ Arguments:
 -loss LOSS              Uses one of three possible loss functions to train the DCVAE model. 
                         Default - Default DCVAE loss. Full - Uses entire reconstruction loss. Indiv - Sum of individual chain losses.
 
+```
+
+Final results may be found in the following files:
+```
+dual_output_LDA          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
+dual_output_NLL          Reports the test negative log-likeilhood approximated by the total loss
+dual_output_recon        Reports the test reconstruction loss by the final trained model
+
+dual_vae_torch.pt        Final saved model weights
 ```
