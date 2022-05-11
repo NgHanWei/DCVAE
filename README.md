@@ -23,3 +23,15 @@ python preprocess_h5_smt.py $source $target
 ```
 
 ## Training and Evaluation
+
+### Traditional VAE
+The traditional VAE can be found implemented in `vae_torch.py`.
+```
+usage: python vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES]
+
+Arguments:
+-subj SUBJ              Set the subject number to run feature extraction on
+-epochs EPOCHS          Set the number of epochs for which to train the VAE
+-features FEATURES      Set the desired number of features to extract from the signal
+
+```
