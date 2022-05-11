@@ -1,2 +1,2 @@
-# DCVAE
+# DualChainVAE
 DualChainVAE Pytorch Implementation
