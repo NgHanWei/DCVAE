@@ -39,11 +39,15 @@ Arguments:
 ### DualChainVAE
 The DualChainVAE can be found implemented in `dual_vae_torch.py`.
 ```
-usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES]
+usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-alpha ALPHA] [-beta BETA] [-loss LOSS]
 
 Arguments:
 -subj SUBJ              Set the subject number to run feature extraction on
 -epochs EPOCHS          Set the number of epochs for which to train the VAE
 -features FEATURES      Set the desired number of features to extract from the signal
+-alpha ALPHA            Set the alpha hyperparameter for KL Divergence in the first chain
+-beta BETA              Set the beta hyperparameter for KL Divergence in the second chain
+-loss LOSS              Uses one of three possible loss functions to train the DCVAE model. 
+                        Default - Default DCVAE loss. Full - Uses entire reconstruction loss. Indiv - Sum of individual chain losses.
 
 ```
