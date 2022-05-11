@@ -38,11 +38,11 @@ Arguments:
 
 Final results may be found in the following files:
 ```
-vae_output_LDA          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
-vae_output_NLL          Reports the test negative log-likeilhood approximated by the total loss
-vae_output_recon        Reports the test reconstruction loss by the final trained model
+vae_output_LDA.txt          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
+vae_output_NLL.txt          Reports the test negative log-likeilhood approximated by the total loss
+vae_output_recon.txt        Reports the test reconstruction loss by the final trained model
 
-vae_torch.pt            Final saved model weights
+vae_torch.pt                Final saved model weights
 ```
 
 ### DualChainVAE
@@ -63,9 +63,9 @@ Arguments:
 
 Final results may be found in the following files:
 ```
-dual_output_LDA          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
-dual_output_NLL          Reports the test negative log-likeilhood approximated by the total loss
-dual_output_recon        Reports the test reconstruction loss by the final trained model
+dual_output_LDA.txt          Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
+dual_output_NLL.txt          Reports the test negative log-likeilhood approximated by the total loss
+dual_output_recon.txt        Reports the test reconstruction loss by the final trained model
 
-dual_vae_torch.pt        Final saved model weights
+dual_vae_torch.pt            Final saved model weights
 ```
