@@ -27,12 +27,14 @@ python preprocess_h5_smt.py $source $target
 ### Traditional VAE
 The traditional VAE can be found implemented in `vae_torch.py`.
 ```
-usage: python vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES]
+usage: python vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-lr LR] [-clip CLIP]
 
 Arguments:
 -subj SUBJ              Set the subject number to run feature extraction on
 -epochs EPOCHS          Set the number of epochs for which to train the VAE
 -features FEATURES      Set the desired number of features to extract from the signal
+-lr LR                  Set the learning rate
+-clip CLIP              Set maximum gradient threshold
 
 ```
 
@@ -48,12 +50,14 @@ vae_torch.pt                Final saved model weights
 ### DualChainVAE
 The DualChainVAE can be found implemented in `dual_vae_torch.py`.
 ```
-usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-alpha ALPHA] [-beta BETA] [-loss LOSS]
+usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-lr LR] [-clip CLIP] [-alpha ALPHA] [-beta BETA] [-loss LOSS]
 
 Arguments:
 -subj SUBJ              Set the subject number to run feature extraction on
 -epochs EPOCHS          Set the number of epochs for which to train the VAE
 -features FEATURES      Set the desired number of features to extract from the signal
+-lr LR                  Set the learning rate
+-clip CLIP              Set maximum gradient threshold
 -alpha ALPHA            Set the alpha hyperparameter for KL Divergence in the first chain
 -beta BETA              Set the beta hyperparameter for KL Divergence in the second chain
 -loss LOSS              Uses one of three possible loss functions to train the DCVAE model. 
