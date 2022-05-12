@@ -44,7 +44,7 @@ vae_output_LDA.txt          Reports the Linear Discriminant Analysis Score for t
 vae_output_NLL.txt          Reports the test negative log-likeilhood approximated by the total loss
 vae_output_recon.txt        Reports the test reconstruction loss by the final trained model
 
-vae_torch.pt                Final saved model weights
+vae_torch.pt                Final saved model weights using best validation loss
 ```
 
 ### DualChainVAE
@@ -71,5 +71,5 @@ dual_output_LDA.txt          Reports the Linear Discriminant Analysis Score for 
 dual_output_NLL.txt          Reports the test negative log-likeilhood approximated by the total loss
 dual_output_recon.txt        Reports the test reconstruction loss by the final trained model
 
-dual_vae_torch.pt            Final saved model weights
+dual_vae_torch.pt            Final saved model weights using best validation loss
 ```
