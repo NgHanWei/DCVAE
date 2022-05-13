@@ -1,6 +1,9 @@
 # DualChainVAE
 Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal features. A pytorch implementation of a vanilla VAE counterpart is included. The dataset used for spatiotemporal feature extraction is an EEG Dataset from Korea University consisting of 54 subjects consisting of Left vs Right Motor Imagery. The sEMG dataset includes 4-channel surface EMG data from 40 participants. The gestures in the data are rest or neutral state, extension of the wrist, flexion of the wrist, ulnar deviation of the wrist, radial deviation of the wrist, grip, abduction of all fingers, adduction of all fingers, supination, and pronation.
 
+## Model Overview
+![Overview of the Dual Chain Variational Autoencoder model architecture.](./DCVAE.png)
+
 ## Summary of Results
 
 | Methodology | Mean (SD) | Median | Range (Max-Min) |
