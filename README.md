@@ -15,16 +15,18 @@ pip install -r requirements.txt
 ```
 
 ### Obtain the raw dataset
-Download the raw dataset(s) from the resources above, and save them to the same `$source` folder. To conserve space, you may only download files that ends with `EEG_MI.mat` for the EEG dataset. For the sEMG dataset, you may download the files belonging to the `filtered` folder.
+Download the raw dataset(s) from the resources above, and save them to the same `$source` folder. To conserve space, you may only download files that ends with `EEG_MI.mat` for the EEG dataset. 
+
+For the sEMG dataset, you may download the files belonging to the `filtered` folder.
 
 ### Pre-process raw dataset
-## EEG Dataset
+#### EEG Dataset
 The following command will read the raw dataset from the `$source` folder, and output the pre-processed data `KU_mi_smt.h5` into the `$target` folder.
 
 ```
 python preprocess_h5_smt.py $source $target
 ```
-## sEMG Dataset
+#### sEMG Dataset
 The following command will read the raw dataset from the `$source` folder, and output the pre-processed data `semg_flexex_smt.h5` into the `$target` folder.
 
 ```
