@@ -3,6 +3,7 @@ Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal f
 
 ## Resources
 Raw Dataset (EEG): http://gigadb.org/dataset/100542
+
 Raw Dataset (sEMG): https://data.mendeley.com/datasets/ckwc76xr2z/2
 
 ## Instructions
