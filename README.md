@@ -5,7 +5,7 @@ Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal f
 ![Overview of the Dual Chain Variational Autoencoder model architecture.](./DCVAE.png)
 Overview of the Dual Chain Variational Autoencoder model architecture.
 
-<img src="./Equation.png" alt="equation" width="1200"/>
+<img src="./Equation.png" alt="equation" width="600"/>
 Optimisation function for the Dual Chain Variational Autoencoder
 
 ## Summary of Results
