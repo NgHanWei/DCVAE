@@ -17,6 +17,16 @@ Optimisation function for the Dual Chain Variational Autoencoder:
 | 16 (sEMG) | 63.54 (14.25) | 60.50 | 57.00 (100.00-43.00) |
 | 8 (sEMG) | 84.19 (9.98) | 84.50 | 47.50 (99.50-52.00) |
 
+### PCA Plots
+
+### T-SNE Plots
+
+### Training Overview
+
+### Features Overview
+
+### Reconstruction
+
 ## Resources
 Raw Dataset: [EEG](http://gigadb.org/dataset/100542)
 
