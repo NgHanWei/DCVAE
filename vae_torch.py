@@ -1,6 +1,9 @@
+from cgi import test
 from vrae.utils import *
+from vae_models import vanilla_vae
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,7 +18,6 @@ torch.manual_seed(0)
 torch.cuda.manual_seed_all(0)
 np.random.seed(0)
 torch.backends.cudnn.deterministic = True
-# torch.use_deterministic_algorithms(True)
 from cmath import inf
 from braindecode.torch_ext.util import set_random_seeds
 import h5py
@@ -27,6 +29,14 @@ parser.add_argument('-subj', type=int,
                     help='Target Subject for Subject Selection', required=True)
 parser.add_argument('-epochs', type=int, default= 100,
                     help='Number of Epochs', required=False)
+parser.add_argument('-features', type=int, default= 16,
+                    help='Number of Latent Features', required=False)
+parser.add_argument('-lr', type=float, default= 0.0005,
+                    help='Set Learning Rate', required=False)
+parser.add_argument('-clip', type=float, default= 0,
+                    help='Set Gradient Clipping Threshold', required=False)
+parser.add_argument('-data', type=str, default= 'eeg',
+                    help='Choose Type of Data: eeg or semg', required=False)
 args = parser.parse_args()
 
 targ_subj = args.subj
@@ -50,141 +60,83 @@ def get_multi_data(subjs):
     return X, Y
 
 # Randomly shuffled subject.
-datapath = 'D:/DeepConvNet/pre-processed/KU_mi_smt.h5'
-fold = 0
-subjs = [35, 47, 46, 37, 13, 27, 12, 32, 53, 54, 4, 40, 19, 41, 18, 42, 34, 7,
-         49, 9, 5, 48, 29, 15, 21, 17, 31, 45, 1, 38, 51, 8, 11, 16, 28, 44, 24,
-         52, 3, 26, 39, 50, 6, 23, 2, 14, 25, 20, 10, 33, 22, 43, 36, 30]
-test_subj = subjs[fold]
-cv_set = np.array(subjs[fold+1:] + subjs[:fold])
+if args.data == 'eeg':
+    datapath = 'D:/DeepConvNet/pre-processed/KU_mi_smt.h5'
+else:
+    datapath = 'D:/eeg_vrae/pre-processed-semg/semg_flexex_smt.h5'
 
 dfile = h5py.File(datapath, 'r')
 torch.cuda.set_device(0)
 set_random_seeds(seed=20200205, cuda=True)
-            
-independent = np.arange(51, 55, 1, dtype=int)
 
-X_train , y_train = get_multi_data([targ_subj])
-X_test , y_test = get_multi_data([targ_subj])
-X_train = np.expand_dims(X_train,axis=1)
-X_test = np.expand_dims(X_test,axis=1)
+if args.data == 'eeg':
+    X_train_all , y_train_all = get_multi_data([targ_subj])
+    X_test , y_test = get_multi_data([targ_subj])
+    X_train_all = np.expand_dims(X_train_all,axis=1)
+    X_test = np.expand_dims(X_test,axis=1)
 
-sub_labels = np.zeros(200)
-sub_labels = np.concatenate((sub_labels,np.ones(200)),axis=0)
-# print(sub_labels.shape)
+    X_valid = X_train_all[320:360]
+    X_test = X_train_all[360:]
+    X_train = X_train_all[:320]
+    y_train = y_test[:320]
+    y_test = y_test[360:]
 
-print(X_train.shape)
+    # ## Data visualisation
+    # X_train = X_train_all
+    # X_test = X_train_all
+    # X_valid = X_train_all
+
+    # y_train = y_train_all
+    # y_test = y_train_all
+
+else:
+    subject_list = list(range(1,41))
+    subject_list.remove(targ_subj)
+    X_train, y_train = get_multi_data(subject_list[3:])
+    X_valid, y_valid = get_multi_data(subject_list[:3])
+    X_test, y_test = get_multi_data([targ_subj])
+    X_train = np.expand_dims(X_train,axis=1)
+    X_valid = np.expand_dims(X_valid,axis=1)
+    X_test = np.expand_dims(X_test,axis=1)
+
 X_train = torch.from_numpy(X_train)
 X_train = X_train.to('cuda')
+X_valid = torch.from_numpy(X_valid)
+X_valid = X_valid.to('cuda')
+X_test = torch.from_numpy(X_test)
+X_test = X_test.to('cuda')
+
 
 # VAE model
 input_shape=(X_train.shape[1:])
 batch_size = 16
 kernel_size = 5
 filters = 8
-features = 8
-data_load = torch.split(X_train,batch_size)
+features = args.features
 
-# leanring parameters
+data_load = torch.split(X_train,batch_size)
+channels = len(X_train[0,0,:,0])
+
+print("Number of Features: " + str(features))
+if args.clip > 0:
+    print("Gradient Clipping: " + str(args.clip))
+else:
+    print("No Gradient Clipping")
+
+if args.data == 'eeg':
+    print("Data Loaded: " + args.data)
+else:
+    print("Data Loaded: semg")
+
+
+# learning parameters
 epochs = args.epochs
 lr = 0.0005
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# define a simple linear VAE
-class LinearVAE(nn.Module):
-    def __init__(self):
-        super(LinearVAE, self).__init__()
- 
-        # encoder
-        self.layer1 = nn.Sequential(
-            nn.Conv2d(in_channels=1,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
-            nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),
-            nn.LeakyReLU(0.2)
-        )
-        
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(in_channels=filters*2,out_channels=filters*4, kernel_size=(62,1),stride=(1,1)),
-            nn.BatchNorm2d(num_features=filters*4, eps=1e-03, momentum=0.99 ),
-            nn.LeakyReLU(0.2)
-        )
-
-        self.flatten =  nn.Flatten()
-        self.dense = nn.Linear(156*filters,32)
-        self.dense2 = nn.Linear(features,32)
-        self.dense3 = nn.Linear(32,156*filters)
-        self.dense_features = nn.Linear(32,features)
-        # decoder
-
-        self.decode_layer1 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*4, kernel_size=(62,1),stride=(1,1)),
-            nn.BatchNorm2d(num_features=filters*4, eps=1e-03, momentum=0.99 ),
-        )
-
-        self.decode_layer2 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
-            nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
-        )
-
-        self.output = nn.ConvTranspose2d(in_channels=filters*2,out_channels=1,kernel_size=5,padding=(2,2))
-
-
-    def reparameterize(self, mu, log_var):
-        """
-        :param mu: mean from the encoder's latent space
-        :param log_var: log variance from the encoder's latent space
-        """
-        std = torch.exp(0.5*log_var) # standard deviation
-        eps = torch.randn_like(std) # `randn_like` as we need the same size
-        sample = mu + (eps * std) # sampling as if coming from the input space
-        return sample
-
-    def forward(self, x):
-        # encoding
-        # print(x.shape)
-        x = self.layer1(x)
-        # print(x.shape)
-        x = self.layer2(x)
-        # print(x.shape)
-        x = self.flatten(x)
-        # print(x.shape)
-        x = F.relu(self.dense(x))
-        # print(x.shape)
-
-        # get `mu` and `log_var`
-        mu = self.dense_features(x)
-        log_var = self.dense_features(x) + 1e-8
-        # print(mu.shape)
-        # print(log_var.shape)
-        # get the latent vector through reparameterization
-        z = self.reparameterize(mu, log_var)
-        # print(z.shape)
-
-        # decoding
-        x = F.relu(self.dense2(z))
-        x = F.relu(self.dense3(x))
-        # print(x.shape)
-        x = x.view(-1, filters*4, 1, 39)
-        # print(x.shape)
-
-        x = self.decode_layer1(x)
-        # print(x.shape)
-        x = self.decode_layer2(x)
-        # print(x.shape)
-        reconstruction = self.output(x)
-        # print(reconstruction.shape)
-
-        # decoding
-        return reconstruction, mu, log_var
-
-
-
-net = LinearVAE()
-print(net)
-
-
-
-## Model
-model = LinearVAE().to(device)
+## Define Model
+model = vanilla_vae.VanillaVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+# print(model)
 optimizer = optim.Adam(model.parameters(), lr=lr,betas=(0.5, 0.999),weight_decay=0.5*lr)
 criterion = nn.BCELoss(reduction='sum')
 
@@ -204,14 +156,6 @@ def recon_loss(outputs,targets):
     return recon_loss
 
 def final_loss(bce_loss, mu, logvar):
-    """
-    This function will add the reconstruction loss (BCELoss) and the 
-    KL-Divergence.
-    KL-Divergence = 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-    :param bce_loss: recontruction loss
-    :param mu: the mean from the latent vector
-    :param logvar: log variance from the latent vector
-    """
     BCE = bce_loss 
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return BCE + KLD
@@ -223,14 +167,12 @@ def fit(model):
     for batch in tqdm(range(0,len(data_load))):
         optimizer.zero_grad()
         reconstruction, mu, logvar = model(data_load[batch])
-        # print(reconstruction.shape)
-        # print(X_train.shape)
-        # bce_loss = criterion(reconstruction, X_train)
         bce_loss = recon_loss(reconstruction,data_load[batch])
         loss = final_loss(bce_loss, mu, logvar)
-        # loss = loss + 0.5* recon_loss(2*reconstruction,reconstruction)
         running_loss += loss.item()
         loss.backward()
+        if args.clip > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         optimizer.step()
 
     train_loss = running_loss/len(X_train)
@@ -243,28 +185,42 @@ def validate(model):
     full_recon_loss = 0.0
     with torch.no_grad():
         # For each image in batch
-        for batch in range(0,len(data_load)):
-            reconstruction, mu, logvar = model(data_load[batch])
-            # bce_loss = criterion(reconstruction, X_train)
-            bce_loss = recon_loss(reconstruction,data_load[batch])
-            loss = final_loss(bce_loss, mu, logvar)
-            running_loss += loss.item()
-            full_recon_loss += bce_loss.item()
+        # for batch in range(0,len(X_valid)):
+        reconstruction, mu, logvar = model(X_valid)
+        bce_loss = recon_loss(reconstruction,X_valid)
+        loss = final_loss(bce_loss, mu, logvar)
+        running_loss += loss.item()
+        full_recon_loss += bce_loss.item()
 
-    val_loss = running_loss/len(X_train)
-    full_recon_loss = full_recon_loss/len(X_train)
+    val_loss = running_loss/len(X_valid)
+    full_recon_loss = full_recon_loss/len(X_valid)
     print(f"Recon Loss: {full_recon_loss:.4f}")
     return val_loss, full_recon_loss
 
+def eval(model):
+    model.eval()
+    nll_loss_eval = 0
+    with torch.no_grad():
+        reconstruction, mu, logvar = model(X_test)
+        recon_1 = recon_loss(reconstruction,X_test)
+        KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
+        nll_loss_eval = (recon_1 + KLD_1)/len(X_test)
+        return nll_loss_eval.item()
+
 train_loss = []
 val_loss = []
+eval_loss = []
 best_val_loss = inf
 for epoch in range(epochs):
     print(f"Epoch {epoch+1} of {epochs}")
     train_epoch_loss = fit(model)
     val_epoch_loss, full_recon_loss = validate(model)
+    eval_epoch_loss = eval(model)
+    
     train_loss.append(train_epoch_loss)
     val_loss.append(val_epoch_loss)
+    eval_loss.append(eval_epoch_loss)
 
     #Save best model
     if val_epoch_loss < best_val_loss:
@@ -276,66 +232,144 @@ for epoch in range(epochs):
     print(f"Val Loss: {val_epoch_loss:.4f}")
 
 
-# Get Results
-# Plot results
-model = LinearVAE().to(device)
+# Save Training Info
+df = pd.DataFrame(np.asarray(train_loss))
+## save to xlsx file
+filepath = 'vae_train.xlsx'
+df.to_excel(filepath, index=False)
+df = pd.DataFrame(np.asarray(eval_loss))
+## save to xlsx file
+filepath = 'vae_eval.xlsx'
+df.to_excel(filepath, index=False)
+
+model = vanilla_vae.VanillaVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
 model.load_state_dict(torch.load("./vae_torch.pt"))
+
+
+open('vae_output_LDA.txt', 'w').close()
+open('vae_output_LDA2.txt', 'w').close()
+open('vae_output_recon.txt', 'w').close()
+open('vae_output_NLL.txt', 'w').close()
+
+## Anomaly Detection
 model.eval()
 with torch.no_grad():
-    reconstruction, mu, logvar = model(X_train)
-    test_recon_loss = recon_loss(reconstruction,X_train)
-    print("Test Recon Loss: " + str(recon_loss(reconstruction,X_train)))
+    reconstruction, mu, logvar = model(X_test)
+    reconstruction_train, mu_train, logvar_train = model(X_train)
+    test_recon_loss = recon_loss(reconstruction,X_test)
+
+if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'eeg':
+    # print("Anomaly Detected")
+    index_list = []
+
+    model.eval()
+    with torch.no_grad():
+        total_loss = 0
+        data_test = torch.split(X_test,1)
+        for i in range(0,len(data_test)):
+            reconstruction, mu, logvar = model(data_test[i])
+            recon_1 = recon_loss(reconstruction,data_test[i])
+            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+            nll_loss = (recon_1 + KLD_1)
+            if recon_1 > 50000 or torch.isnan(test_recon_loss):
+                index_list.append(i)
+            total_loss += nll_loss
+
+        if len(index_list) == 40:
+            index_list = []
+            for i in range(0,len(data_test)):
+                reconstruction, mu, logvar = model(data_test[i])
+                recon_1 = recon_loss(reconstruction,data_test[i])
+                if recon_1 > 100000 or torch.isnan(recon_1):
+                    index_list.append(i)
+
+    old_list = list(range(0,40))
+    new_list = [number for number in old_list if number not in index_list]
+    X_test = X_test[new_list,:,:,:]
+    y_test = y_test[new_list]
+
+
+# Get Results
+# Plot results
+
+model.eval()
+with torch.no_grad():
+    reconstruction, mu, logvar = model(X_test)
+    reconstruction_train, mu_train, logvar_train = model(X_train)
+    test_recon_loss = recon_loss(reconstruction,X_test)
+    print("Test Recon Loss: " + str(recon_loss(reconstruction,X_test)))
 
 # Plot results
-X_train_np = X_train.cpu().detach().numpy()
+X_train_np = X_test.cpu().detach().numpy()
 reconstruction = reconstruction.cpu().detach().numpy()
+# print(X_train_np.shape)
 plt.plot(X_train_np[0,0,0,:])
 # plt.show()
 plt.plot(reconstruction[0,0,0,:])
 # plt.show()
 
 mu = mu.cpu().detach().numpy()
-
+mu_train = mu_train.cpu().detach().numpy()
 ## Latent Space Extracted Features
 plt.plot(mu)
 # plt.show()
 
-print(mu.shape)
+# fig, axs = plt.subplots(features, sharex=True, sharey=True, gridspec_kw={'hspace': 0})
+# fig.suptitle('Learned Latent Features')
+# hex_colors = []
+# for _ in range(0,features):
+#     hex_colors.append('#%06X' % randint(0, 0xFFFFFF))
+# colors = [hex_colors[int(i)] for i in range(0,features)]
+# for i in range(0,features):
+#     axs[i].plot(mu[:,i], linewidth=3, color=colors[i])
+
+# Hide x labels and tick labels for all but bottom plot.
+# for ax in axs:
+#     ax.label_outer()
+
+# plt.show()
+
+# print(mu.shape)
 # plot_clustering(mu, y_test, engine='matplotlib', download = False)
 
 def LDA(x,y):
     lda = LinearDiscriminantAnalysis()
-    lda.fit(x,y)
+    lda.fit(mu_train,y_train)
     lda_score = lda.score(x,y)
     return lda_score
 
 score = LDA(mu,y_test)
 print("LDA Score: " + str(score))
 
-
-f = open("vae_output.txt", "a")
-
+f = open("vae_output_LDA.txt", "a")
 f.write(f"{score}\n")
+f.close()
 
+def LDA_2(x,y):
+    lda = LinearDiscriminantAnalysis()
+    lda.fit(x,y)
+    lda_score = lda.score(x,y)
+    return lda_score
+
+score = LDA_2(mu,y_test)
+
+f = open("vae_output_LDA2.txt", "a")
+f.write(f"{score}\n")
 f.close()
 
 f = open("vae_output_recon.txt", "a")
-
 f.write(f"{test_recon_loss}\n")
-
 f.close()
 
 ## NLL
 with torch.no_grad():
-    reconstruction, mu, logvar = model(X_train)
-    recon_1 = recon_loss(reconstruction,X_train)
+    reconstruction, mu, logvar = model(X_test)
+    recon_1 = recon_loss(reconstruction,X_test)
     KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
-    nll_loss = recon_1/len(X_train) + KLD_1
+    nll_loss = (recon_1 + KLD_1)/len(X_test)
     print(nll_loss)
 
 f = open("vae_output_NLL.txt", "a")
-
 f.write(f"{nll_loss}\n")
-
 f.close()
