@@ -69,7 +69,7 @@ class VanillaVAE(nn.Module):
         sample = mu + (eps * std) # sampling as if coming from the input space
         return sample
 
-    def forward(self, x, data_load):
+    def forward(self, x):
         # encoding
         # print(x.shape)
         x = self.layer1(x)
@@ -93,11 +93,10 @@ class VanillaVAE(nn.Module):
         # decoding
         x = F.relu(self.dense2(z))
         x = F.relu(self.dense3(x))
-        # print(x.shape)
         if self.data_type == 'eeg':
             view_var = 39
         else:
-            view_var = 60 * self.data_length
+            view_var = 60 * len(x)
         x = x.view(-1, self.filters*4, 1, view_var)
         # print(x.shape)
 

@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# define DCVAE
 class DCVAE(nn.Module):
     def __init__(self, filters, channels, features, data_type):
         super(DCVAE, self).__init__()
-
+ 
         self.filters = filters
         self.channels = channels
         self.features = features
@@ -25,9 +26,17 @@ class DCVAE(nn.Module):
         )
 
         self.flatten =  nn.Flatten()
-        self.dense = nn.Linear(156*filters,32)
+
+        if data_type == 'eeg':
+            dense_var = 156
+            dense_var_2 = 156
+        else:
+            dense_var = 236
+            dense_var_2 = 240
+
+        self.dense = nn.Linear(dense_var*filters,32)
         self.dense2 = nn.Linear(features,32)
-        self.dense3 = nn.Linear(32,156*filters)
+        self.dense3 = nn.Linear(32,dense_var_2*filters)
         self.dense_features = nn.Linear(32,features)
         # decoder
 
@@ -36,10 +45,16 @@ class DCVAE(nn.Module):
             nn.BatchNorm2d(num_features=filters*4, eps=1e-03, momentum=0.99 ),
         )
 
-        self.decode_layer2 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
-            nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
-        )
+        if data_type == 'eeg':
+            self.decode_layer2 = nn.Sequential(
+                nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
+                nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
+            )
+        else:
+            self.decode_layer2 = nn.Sequential(
+                nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,25),stride=(1,25)),
+                nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
+            )
 
         self.output = nn.ConvTranspose2d(in_channels=filters*2,out_channels=1,kernel_size=5,padding=(2,2))
 
@@ -58,9 +73,9 @@ class DCVAE(nn.Module):
         )
 
         self.flatten_2 =  nn.Flatten()
-        self.dense_2 = nn.Linear(156*filters,32)
+        self.dense_2 = nn.Linear(dense_var*filters,32)
         self.dense2_2 = nn.Linear(features,32)
-        self.dense3_2 = nn.Linear(32,156*filters)
+        self.dense3_2 = nn.Linear(32,dense_var_2*filters)
         self.dense_features_2 = nn.Linear(32,features)
         # decoder
 
@@ -69,10 +84,16 @@ class DCVAE(nn.Module):
             nn.BatchNorm2d(num_features=filters*4, eps=1e-03, momentum=0.99 ),
         )
 
-        self.decode_layer2_2 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
-            nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
-        )
+        if data_type == 'eeg':
+            self.decode_layer2_2 = nn.Sequential(
+                nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,50),stride=(1,25)),
+                nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
+            )
+        else:
+            self.decode_layer2_2 = nn.Sequential(
+                nn.ConvTranspose2d(in_channels=filters*4,out_channels=filters*2, kernel_size=(1,25),stride=(1,25)),
+                nn.BatchNorm2d(num_features=filters*2, eps=1e-03, momentum=0.99 ),            
+            )
 
         self.output_2 = nn.ConvTranspose2d(in_channels=filters*2,out_channels=1,kernel_size=5,padding=(2,2))
 
@@ -112,7 +133,12 @@ class DCVAE(nn.Module):
         x = F.relu(self.dense2(z))
         x = F.relu(self.dense3(x))
         # print(x.shape)
-        x = x.view(-1, self.filters*4, 1, 39)
+        batch_size = len(x)
+        if self.data_type == 'eeg':
+            view_var = 39
+        else:
+            view_var = 60 * batch_size
+        x = x.view(-1, self.filters*4, 1, view_var)
         # print(x.shape)
 
         x = self.decode_layer1(x)
@@ -121,6 +147,9 @@ class DCVAE(nn.Module):
         # print(x.shape)
         reconstruction = self.output(x)
         # print(reconstruction.shape)
+        if self.data_type != 'eeg':
+            reconstruction = reconstruction.view(batch_size,1,4,1500)
+ 
 
         new_inputs = original - reconstruction
         ## Second encoder decoder
@@ -140,7 +169,11 @@ class DCVAE(nn.Module):
         x1 = F.relu(self.dense2_2(z_2))
         x1 = F.relu(self.dense3_2(x1))
         # print(x1.shape)
-        x1 = x1.view(-1, self.filters*4, 1, 39)
+        if self.data_type == 'eeg':
+            view_var = 39
+        else:
+            view_var = 60 * len(x)
+        x1 = x1.view(-1, self.filters*4, 1, view_var)
 
         x1 = self.decode_layer1_2(x1)
         x1 = self.decode_layer2_2(x1)
