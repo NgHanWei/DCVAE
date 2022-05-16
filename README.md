@@ -21,7 +21,7 @@ The results display the test approximated negative log-likelihood scores of the 
 Comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with no clipping and alpha and beta hyperparameters are set to 0.25 as suggested in the paper.
 
 | Methodology |Default|Full|Indiv|
-|-|-|-|-|-|-|
+|-|-|-|-|
 | 16 (EEG) | -74.8 |-84.2 |-101.9  |
 | 16 (sEMG) | -2557.4 (0.78) |-2557.4 (0.78) |-2557.4 (0.755)  |
 
