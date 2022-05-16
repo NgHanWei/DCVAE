@@ -9,13 +9,14 @@ Optimisation function for the Dual Chain Variational Autoencoder:
 <img src="./Figures/Equation.png" alt="equation" width="600"/>
 
 ## Summary of Results
+The results display the test approximated negative log-likelihood scores of the various model and their settings. For the sEMG data, an additional Linear Discriminant Analysis (LDA) score is added in brackets ().
 
-| Methodology | Mean (SD) | Median | Range (Max-Min) |
-|-|-|-|-|
-| 16 (EEG) | 63.54 (14.25) | 60.50 | 57.00 (100.00-43.00) |
-| 8 (EEG) | 84.19 (9.98) | 84.50 | 47.50 (99.50-52.00) |
-| 16 (sEMG) | 63.54 (14.25) | 60.50 | 57.00 (100.00-43.00) |
-| 8 (sEMG) | 84.19 (9.98) | 84.50 | 47.50 (99.50-52.00) |
+| Methodology |VAE|VAE+Clip|DCVAE|beta-DCVAE|beta-DCVAE + Clip|
+|-|-|-|-|-|-|
+| 16 (EEG) |  | |  |  |  |
+| 8 (EEG) |  | |  |  |  |
+| 16 (sEMG) |  | |  |  |  |
+| 8 (sEMG) |  | |  |  |  |
 
 ### PCA/t-SNE Plots
 Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
