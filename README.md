@@ -22,16 +22,21 @@ Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 
 <img src="./Figures/Qualitative.png" alt="equation" width="800"/>
 
-### Training Overview
+### Training/Evaluation Overview
+Training Curve of the various model permutations for a single subject (subject 6):
+<img src="./Figures/TrainCurve.png" alt="train" width="600"/>
+
+Evaluation Curve of the various model permutations for a single subject (subject 6):
+<img src="./Figures/EvalCurve.png" alt="eval" width="600"/>
 
 ### Features Overview
 Features of a subject with poor signal consistency between training phases and test phase (subject 30):
 
-<img src="./Figures/LatentFeatures_sub30_2.png" alt="equation" width="600"/>
+<img src="./Figures/LatentFeatures_sub30_2.png" alt="sub30_features" width="600"/>
 
 Features of a subject with good signal consistency between sessions (subject 35):
 
-<img src="./Figures/LatentFeatures_sub35_2.png" alt="equation" width="600"/>
+<img src="./Figures/LatentFeatures_sub35_2.png" alt="sub35_features" width="600"/>
 
 
 ### Reconstruction
