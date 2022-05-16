@@ -116,7 +116,7 @@ Arguments:
 
 For example the following command trains a vanilla VAE on subject 1 for 16 latent features, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data for subject 1.
 ```
-python vae_torch.py -subj 1     
+python vae_torch.py -subj 1 -datapath $target     
 ```
 
 Final results may be found in the following files:
@@ -150,7 +150,7 @@ Arguments:
 
 For example the following command trains a Dual Chain VAE on subject 1 for 16 total latent features split to 8-8, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data for subject 1.
 ```
-python dual_vae_torch.py -subj 1     
+python dual_vae_torch.py -subj 1 -datapath $target     
 ```
 
 Final results may be found in the following files:
