@@ -51,7 +51,9 @@ Features of a subject with good signal consistency between sessions (subject 35)
 
 
 ### Reconstruction
-To be updated.
+Reconstruction of EEG dataset.
+
+<img src="./Figures/EEG Reconstruction.png" alt="eeg_recon" width="600"/>
 
 ## Resources
 Raw Dataset: [EEG](http://gigadb.org/dataset/100542)
