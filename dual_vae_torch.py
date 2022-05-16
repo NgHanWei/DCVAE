@@ -1,14 +1,12 @@
 from cmath import inf
-from vae.utils import *
+from vrae.utils import *
 from vae_models import dualchain_vae
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 import pandas as pd
-import tensorflow as tf
 import sys
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import argparse
 import matplotlib.pyplot as plt

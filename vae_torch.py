@@ -1,5 +1,5 @@
 from cgi import test
-from vae.utils import *
+from vrae.utils import *
 from vae_models import vanilla_vae
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
