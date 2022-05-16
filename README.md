@@ -18,7 +18,8 @@ The results display the test approximated negative log-likelihood scores of the 
 | 16 (sEMG) | -2557.4 (0.6675) |-2557.3 (0.715) |-2557.6 (0.7075)  |-2557.5 (0.7675)  |-2557.5 (0.7775)  |
 | 8 (sEMG) |-2557.5 (0.71)  | -2557.5 (0.72) |-2557.5 (0.7975)  |-2557.5 (0.78)  |-2557.4 (0.7975)  |
 
-Comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with no clipping and alpha and beta hyperparameters are set to 0.25 as suggested in the paper.
+
+The table below shows comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with no clipping and alpha and beta hyperparameters are set to 0.25 as suggested in the paper.
 
 | Methodology |Default|Full|Indiv|
 |-|-|-|-|
