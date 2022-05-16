@@ -13,10 +13,10 @@ The results display the test approximated negative log-likelihood scores of the 
 
 | Methodology |VAE|VAE+Clip|DCVAE|beta-DCVAE|beta-DCVAE + Clip|
 |-|-|-|-|-|-|
-| 16 (EEG) |  | |  |  |  |
-| 8 (EEG) |  | |  |  |  |
-| 16 (sEMG) |  | |  |  |  |
-| 8 (sEMG) |  | |  |  |  |
+| 16 (EEG) | -87.2 |-90.1 |-100.8  |-78.6  |-135.2  |
+| 8 (EEG) |-91.2  |-89.0 |-82.5  |-74.8  |-84.0  |
+| 16 (sEMG) | -2557.4 (0.6675) |-2557.3 (0.715) |-2557.6 (0.7075)  |-2557.5 (0.7675)  |-2557.5 (0.7775)  |
+| 8 (sEMG) |-2557.5 (0.71)  | -2557.5 (0.72) |-2557.5 (0.7975)  |-2557.5 (0.78)  |-2557.4 (0.7975)  |
 
 ### PCA/t-SNE Plots
 Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
