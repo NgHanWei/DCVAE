@@ -43,7 +43,7 @@ parser.add_argument('-loss', type=str, default= "default",
                     help='Sets the various lower bound loss functions to train DCVAE. Default - Default DCVAE loss. full - Entire reconstruction loss. indiv - Individual chain loss.', required=False)                    
 parser.add_argument('-data', type=str, default= 'eeg',
                     help='Choose Type of Data: eeg or semg', required=False)
-parser.add_argument('datapath', type=str, help='Path to data')
+parser.add_argument('-datapath', type=str, help='Path to data', required=True)
 args = parser.parse_args()
 
 if args.loss not in ['default', 'full', 'indiv']:
