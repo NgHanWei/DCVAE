@@ -25,7 +25,7 @@ Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 ### Training/Evaluation Overview
 Training Curve of the various model permutations for a single subject (subject 6):
 
-<img src="./Figures/TrainCurve.png" alt="train" width="400"/><img src="./Figures/EvalCurve.png" alt="eval" width="400"/>
+<img src="./Figures/TrainCurve.png" alt="train" width="400"/>
 
 Evaluation Curve of the various model permutations for a single subject (subject 6):
 
@@ -94,6 +94,12 @@ Arguments:
 
 ```
 
+For example:
+```
+python vae_torch.py -subj 1     
+```
+Trains a vanilla VAE on subject 1 for 16 latent features, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
+
 Final results may be found in the following files:
 ```
 vae_output_LDA_train.txt    Reports the Linear Discriminant Analysis Score for all extracted features according to the true class
@@ -122,6 +128,12 @@ Arguments:
 -data DATA              Set which data to analyse, eeg or semg
 
 ```
+
+For example:
+```
+python dual_vae_torch.py -subj 1     
+```
+Trains a Dual Chain VAE on subject 1 for 16 total latent features split to 8-8, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
 
 Final results may be found in the following files:
 ```
