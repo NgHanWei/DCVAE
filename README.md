@@ -42,6 +42,7 @@ Features of a subject with good signal consistency between sessions (subject 35)
 
 
 ### Reconstruction
+To be updated.
 
 ## Resources
 Raw Dataset: [EEG](http://gigadb.org/dataset/100542)
@@ -94,11 +95,10 @@ Arguments:
 
 ```
 
-For example:
+For example the following command trains a vanilla VAE on subject 1 for 16 latent features, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
 ```
 python vae_torch.py -subj 1     
 ```
-Trains a vanilla VAE on subject 1 for 16 latent features, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
 
 Final results may be found in the following files:
 ```
@@ -129,11 +129,10 @@ Arguments:
 
 ```
 
-For example:
+For example the following command trains a Dual Chain VAE on subject 1 for 16 total latent features split to 8-8, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
 ```
 python dual_vae_torch.py -subj 1     
 ```
-Trains a Dual Chain VAE on subject 1 for 16 total latent features split to 8-8, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data.
 
 Final results may be found in the following files:
 ```
