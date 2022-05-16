@@ -43,6 +43,7 @@ parser.add_argument('-loss', type=str, default= "default",
                     help='Sets the various lower bound loss functions to train DCVAE. Default - Default DCVAE loss. full - Entire reconstruction loss. indiv - Individual chain loss.', required=False)                    
 parser.add_argument('-data', type=str, default= 'eeg',
                     help='Choose Type of Data: eeg or semg', required=False)
+parser.add_argument('datapath', type=str, help='Path to data')
 args = parser.parse_args()
 
 if args.loss not in ['default', 'full', 'indiv']:
@@ -71,9 +72,9 @@ def get_multi_data(subjs):
 
 # Randomly shuffled subject.
 if args.data == 'eeg':
-    datapath = 'D:/DeepConvNet/pre-processed/KU_mi_smt.h5'
+    datapath = args.source + '/KU_mi_smt.h5'
 else:
-    datapath = 'D:/eeg_vrae/pre-processed-semg/semg_flexex_smt.h5'
+    datapath = args.source + '/semg_flexex_smt.h5'
 
 dfile = h5py.File(datapath, 'r')
 torch.cuda.set_device(0)
