@@ -20,14 +20,14 @@ Optimisation function for the Dual Chain Variational Autoencoder:
 ### PCA/t-SNE Plots
 Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 
-![](./Figures/Qualitative.png)
+<img src="./Figures/Qualitative.png" alt="equation" width="800"/>
 
 ### Training Overview
 
 ### Features Overview
 Features of a subject with poor signal consistency between sessions (subject 30):
 
-![](./Figures/LatentFeatures_sub30_2)
+<img src="./Figures/LatentFeatures_sub30_2.png" alt="equation" width="800"/>
 
 Features of a subject with good signal consistency between sessions (subject 35):
 
