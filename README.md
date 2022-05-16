@@ -17,13 +17,22 @@ Optimisation function for the Dual Chain Variational Autoencoder:
 | 16 (sEMG) | 63.54 (14.25) | 60.50 | 57.00 (100.00-43.00) |
 | 8 (sEMG) | 84.19 (9.98) | 84.50 | 47.50 (99.50-52.00) |
 
-### PCA Plots
+### PCA/t-SNE Plots
+Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 
-### T-SNE Plots
+![](./Figures/Qualitative.png)
 
 ### Training Overview
 
 ### Features Overview
+Features of a subject with poor signal consistency between sessions (subject 30):
+
+![](./Figures/LatentFeatures_sub30_2)
+
+Features of a subject with good signal consistency between sessions (subject 35):
+
+![](./Figures/LatentFeatures_sub35_2)
+
 
 ### Reconstruction
 
