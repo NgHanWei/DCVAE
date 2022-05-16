@@ -72,9 +72,9 @@ def get_multi_data(subjs):
 
 # Randomly shuffled subject.
 if args.data == 'eeg':
-    datapath = args.source + '/KU_mi_smt.h5'
+    datapath = args.datapath + '/KU_mi_smt.h5'
 else:
-    datapath = args.source + '/semg_flexex_smt.h5'
+    datapath = args.datapath + '/semg_flexex_smt.h5'
 
 dfile = h5py.File(datapath, 'r')
 torch.cuda.set_device(0)
