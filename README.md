@@ -70,6 +70,10 @@ To install pytoch for a conda environment use the following command:
 ```
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 ```
+For a pip environment:
+```
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+```
 
 ### Obtain the raw dataset
 Download the raw dataset(s) from the resources above, and save them to the same `$source` folder. To conserve space, you may only download files that ends with `EEG_MI.mat` for the EEG dataset. 
