@@ -37,6 +37,7 @@ parser.add_argument('-clip', type=float, default= 0,
                     help='Set Gradient Clipping Threshold', required=False)
 parser.add_argument('-data', type=str, default= 'eeg',
                     help='Choose Type of Data: eeg or semg', required=False)
+parser.add_argument('-datapath', type=str, help='Path to data', required=True)
 args = parser.parse_args()
 
 targ_subj = args.subj
@@ -61,9 +62,9 @@ def get_multi_data(subjs):
 
 # Randomly shuffled subject.
 if args.data == 'eeg':
-    datapath = 'D:/DeepConvNet/pre-processed/KU_mi_smt.h5'
+    datapath = args.datapath + '/KU_mi_smt.h5'
 else:
-    datapath = 'D:/eeg_vrae/pre-processed-semg/semg_flexex_smt.h5'
+    datapath = args.datapath + '/semg_flexex_smt.h5'
 
 dfile = h5py.File(datapath, 'r')
 torch.cuda.set_device(0)
