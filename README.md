@@ -24,9 +24,11 @@ Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 
 ### Training/Evaluation Overview
 Training Curve of the various model permutations for a single subject (subject 6):
+
 <img src="./Figures/TrainCurve.png" alt="train" width="400"/>
 
 Evaluation Curve of the various model permutations for a single subject (subject 6):
+
 <img src="./Figures/EvalCurve.png" alt="eval" width="400"/>
 
 ### Features Overview
