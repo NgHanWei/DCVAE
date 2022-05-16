@@ -1,5 +1,5 @@
 # DualChainVAE
-Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal features. A pytorch implementation of a vanilla VAE counterpart is included. The dataset used for spatiotemporal feature extraction is an EEG Dataset from Korea University consisting of 54 subjects consisting of Left vs Right Motor Imagery. The sEMG dataset includes 4-channel surface EMG data from 40 participants. The gestures in the data are rest or neutral state, extension of the wrist, flexion of the wrist, ulnar deviation of the wrist, radial deviation of the wrist, grip, abduction of all fingers, adduction of all fingers, supination, and pronation.
+Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal features. A pytorch implementation of a vanilla VAE counterpart is included. The dataset used for spatiotemporal feature extraction is an EEG Dataset from Korea University consisting of 54 subjects consisting of Left vs Right Motor Imagery. The sEMG dataset includes 4-channel surface EMG data from 40 participants. The gestures in the data are rest or neutral state, extension of the wrist, flexion of the wrist, ulnar deviation of the wrist, radial deviation of the wrist, grip, abduction of all fingers, adduction of all fingers, supination, and pronation. In this study we focus on the flexion extension portion of the data.
 
 ## Model Overview
 ![Overview of the Dual Chain Variational Autoencoder model architecture.](./Figures/DCVAE.png)
@@ -27,11 +27,11 @@ Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 ### Features Overview
 Features of a subject with poor signal consistency between sessions (subject 30):
 
-<img src="./Figures/LatentFeatures_sub30_2.png" alt="equation" width="800"/>
+<img src="./Figures/LatentFeatures_sub30_2.png" alt="equation" width="600"/>
 
 Features of a subject with good signal consistency between sessions (subject 35):
 
-![](./Figures/LatentFeatures_sub35_2)
+<img src="./Figures/LatentFeatures_sub35_2.png" alt="equation" width="600"/>
 
 
 ### Reconstruction
