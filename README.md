@@ -66,6 +66,11 @@ It is recommended to create a virtual environment with python version 3.7 and ac
 pip install -r requirements.txt
 ```
 
+To install pytoch for a conda environment use the following command:
+```
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+```
+
 ### Obtain the raw dataset
 Download the raw dataset(s) from the resources above, and save them to the same `$source` folder. To conserve space, you may only download files that ends with `EEG_MI.mat` for the EEG dataset. 
 
