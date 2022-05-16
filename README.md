@@ -25,7 +25,7 @@ Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
 ### Training Overview
 
 ### Features Overview
-Features of a subject with poor signal consistency between sessions (subject 30):
+Features of a subject with poor signal consistency between training phases and test phase (subject 30):
 
 <img src="./Figures/LatentFeatures_sub30_2.png" alt="equation" width="600"/>
 
