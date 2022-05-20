@@ -24,7 +24,7 @@ import h5py
 set_random_seeds(seed=0, cuda=True)
 
 parser = argparse.ArgumentParser(
-    description='VAE Subject Selection')
+    description='VAE')
 parser.add_argument('-subj', type=int,
                     help='Target Subject for Subject Selection', required=True)
 parser.add_argument('-epochs', type=int, default= 100,
