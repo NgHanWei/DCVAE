@@ -167,4 +167,11 @@ dual_output_recon.txt        Reports the test reconstruction loss by the final t
 dual_vae_torch.pt            Final saved model weights using best validation loss
 ```
 
-#
+## Evaluation
+
+Although evaluation is already done automatically for each of the respective VAE variations, we provide a file `vae_eval.py` that loads in a saved model and performs inference using the model.
+
+The `vae_eval.py` may be used via the command line:
+```
+python vae_eval.py -datapath $target -model $filepath
+```
