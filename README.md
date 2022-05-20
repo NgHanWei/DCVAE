@@ -123,7 +123,7 @@ For example the following command trains a vanilla VAE on subject 1 for 16 laten
 python vae_torch.py -subj 1 -datapath $target     
 ```
 
-Final results may be found in the following files:
+Evaluation is done automatically and final results may be found in the following files:
 ```
 vae_output_LDA_train.txt    Reports the Linear Discriminant Analysis Score for all extracted features according to the true class
 vae_output_LDA_test.txt     Reports the Linear Discriminant Analysis Score for the test extracted features on a trained LDA model
@@ -157,7 +157,7 @@ For example the following command trains a Dual Chain VAE on subject 1 for 16 to
 python dual_vae_torch.py -subj 1 -datapath $target     
 ```
 
-Final results may be found in the following files:
+Evaluation is done automatically and final results may be found in the following files:
 ```
 dual_output_LDA_train.txt    Reports the Linear Discriminant Analysis Score for the extracted features according to the true class
 dual_output_LDA_test.txt     Reports the Linear Discriminant Analysis Score for the test extracted features on a trained LDA model
@@ -166,3 +166,5 @@ dual_output_recon.txt        Reports the test reconstruction loss by the final t
 
 dual_vae_torch.pt            Final saved model weights using best validation loss
 ```
+
+#
