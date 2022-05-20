@@ -222,15 +222,18 @@ with torch.no_grad():
 # Original
 X_train_np = X_test.cpu().detach().numpy()
 plt.plot(X_train_np[0,0,0,:])
+plt.title('Original Input')
 plt.show()
 # Recon 1
 reconstruction_np = reconstruction.cpu().detach().numpy()
 plt.plot(reconstruction_np[0,0,0,:])
+plt.title('First Chain Output')
 plt.show()
 # Recon 2
 if 'dual' in args.model:
     recon_full = recon_full.cpu().detach().numpy()
     plt.plot(recon_full[0,0,0,:])
+    plt.title('Second Chain Output')
     plt.show()
 
     mu = mu.cpu().detach().numpy()
@@ -245,11 +248,12 @@ else:
     mu_3_train = mu_train.cpu().detach().numpy()
 
 plt.plot(mu_3)
+plt.title("Learned Features Overlapped")
 plt.show()
 
 
 fig, axs = plt.subplots(features, sharex=True, sharey=True, gridspec_kw={'hspace': 0})
-fig.suptitle('Learned Latent arg.features')
+fig.suptitle('Learned Latent Features')
 hex_colors = []
 for _ in range(0,features):
     hex_colors.append('#%06X' % randint(0, 0xFFFFFF))
@@ -317,7 +321,7 @@ with torch.no_grad():
 
         nll_loss = (recon_1 + KLD_1)/len(X_test)
     
-    print(nll_loss)
+    print("Approx Log-Likelihood: " + str(nll_loss.item()))
 
 
 f = open("dual_output_NLL.txt", "a")
