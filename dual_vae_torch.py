@@ -24,7 +24,7 @@ import h5py
 set_random_seeds(seed=0, cuda=True)
 
 parser = argparse.ArgumentParser(
-    description='DCVAE)
+    description='VAE Subject Selection')
 parser.add_argument('-subj', type=int,
                     help='Target Subject for Feature Extraction', required=True)
 parser.add_argument('-epochs', type=int, default= 100,
@@ -43,7 +43,8 @@ parser.add_argument('-loss', type=str, default= "default",
                     help='Sets the various lower bound loss functions to train DCVAE. Default - Default DCVAE loss. full - Entire reconstruction loss. indiv - Individual chain loss.', required=False)                    
 parser.add_argument('-data', type=str, default= 'eeg',
                     help='Choose Type of Data: eeg or semg', required=False)
-parser.add_argument('-datapath', type=str, help='Path to data', required=True)
+parser.add_argument('-datapath', type=str, help='Path to data',required=True)
+parser.add_argument('-all', default=False, action='store_true')
 args = parser.parse_args()
 
 if args.loss not in ['default', 'full', 'indiv']:
@@ -81,34 +82,44 @@ torch.cuda.set_device(0)
 set_random_seeds(seed=20200205, cuda=True)
 
 if args.data == 'eeg':
+
     X_train_all , y_train_all = get_multi_data([targ_subj])
-    X_test , y_test = get_multi_data([targ_subj])
     X_train_all = np.expand_dims(X_train_all,axis=1)
-    X_test = np.expand_dims(X_test,axis=1)
 
-    X_valid = X_train_all[320:360]
-    X_test = X_train_all[360:]
-    X_train = X_train_all[:320]
-    y_train = y_test[:320]
-    y_test = y_test[360:]
+    if args.all == False:
+        X_test , y_test = get_multi_data([targ_subj])
+        X_test = np.expand_dims(X_test,axis=1)
+        X_valid = X_train_all[320:360]
+        X_test = X_train_all[360:]
+        X_train = X_train_all[:320]
+        y_train = y_test[:320]
+        y_test = y_test[360:]
 
-    ## Data visualisation
-    # X_train = X_train_all
-    # X_test = X_train_all
-    # X_valid = X_train_all
-
-    # y_train = y_train_all
-    # y_test = y_train_all
-
+    else:
+        # Data visualisation
+        X_train = X_train_all
+        X_test = X_train_all
+        X_valid = X_train_all
+        y_train = y_train_all
+        y_test = y_train_all
+## sEMG data
 else:
     subject_list = list(range(1,41))
     subject_list.remove(targ_subj)
-    X_train, y_train = get_multi_data(subject_list[3:])
-    X_valid, y_valid = get_multi_data(subject_list[:3])
-    X_test, y_test = get_multi_data([targ_subj])
-    X_train = np.expand_dims(X_train,axis=1)
-    X_valid = np.expand_dims(X_valid,axis=1)
-    X_test = np.expand_dims(X_test,axis=1)
+    if args.all == False:
+        X_train, y_train = get_multi_data(subject_list[3:])
+        X_valid, y_valid = get_multi_data(subject_list[:3])
+        X_test, y_test = get_multi_data([targ_subj])
+        X_train = np.expand_dims(X_train,axis=1)
+        X_valid = np.expand_dims(X_valid,axis=1)
+        X_test = np.expand_dims(X_test,axis=1)
+    else:
+        X_train, y_train = get_multi_data(subject_list)
+        X_valid, y_valid = get_multi_data(subject_list)
+        X_test, y_test = get_multi_data(subject_list)
+        X_train = np.expand_dims(X_train,axis=1)
+        X_valid = np.expand_dims(X_valid,axis=1)
+        X_test = np.expand_dims(X_test,axis=1)
 
 # print(X_train.shape)
 X_train = torch.from_numpy(X_train)
@@ -228,6 +239,9 @@ def validate(model,data):
     print(f"Full Recon Loss: {full_recon_loss:.4f}")
     return val_loss, full_recon_loss
 
+# Save file name
+file_name = "./dual_vae_torch" +  '_' + str(args.data) + '_' + str(targ_subj) + '_' + str(filters) + '_' + str(channels) + '_' + str(args.features) + ".pt"
+
 train_loss = []
 val_loss = []
 eval_loss = []
@@ -242,7 +256,7 @@ for epoch in range(epochs):
     #Save best model
     if val_epoch_loss < best_val_loss:
         best_val_loss = val_epoch_loss
-        torch.save(model.state_dict(),"./dual_vae_torch.pt")
+        torch.save(model.state_dict(),file_name)
         print(f"Saving Model... Best Val Loss: {best_val_loss:.4f}")    
     
     train_loss.append(train_epoch_loss)
@@ -265,12 +279,12 @@ df.to_excel(filepath, index=False)
 
 # Plot results
 model = dualchain_vae.DCVAE(filters=filters,channels=channels,features=features,data_type=args.data).to(device)
-model.load_state_dict(torch.load("./dual_vae_torch.pt"))
+model.load_state_dict(torch.load(file_name))
 
-open('dual_output_LDA.txt', 'w').close()
-open('dual_output_LDA2.txt', 'w').close()
-open('dual_output_recon.txt', 'w').close()
-open('dual_output_NLL.txt', 'w').close()
+# open('dual_output_LDA.txt', 'w').close()
+# open('dual_output_LDA2.txt', 'w').close()
+# open('dual_output_recon.txt', 'w').close()
+# open('dual_output_NLL.txt', 'w').close()
 
 ## Anomaly detection
 model.eval()
@@ -352,6 +366,8 @@ mu_2 = mu_2.cpu().detach().numpy()
 mu_3 = np.concatenate((mu,mu_2),axis=1)
 mu_3_train = np.concatenate((mu_train,mu_2_train),axis=1)
 print(mu_3.shape)
+
+# print(mu_3[20,:])
 
 ## Latent Space Extracted Features
 plt.plot(mu)
