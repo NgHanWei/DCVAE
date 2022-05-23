@@ -9,22 +9,22 @@ Optimisation function for the Dual Chain Variational Autoencoder:
 <img src="./Figures/Equation.png" alt="equation" width="600"/>
 
 ## Summary of Results
-The results display the test approximated negative log-likelihood scores of the various model and their settings. For the sEMG data, an additional Linear Discriminant Analysis (LDA) score is added in brackets ().
+The results display the test approximated negative log-likelihood scores of the various model and their settings.
 
 | Methodology |VAE|VAE+Clip|DCVAE|beta-DCVAE|beta-DCVAE + Clip|
 |-|-|-|-|-|-|
-| 16 (EEG) | -87.2 |-90.1 |-100.8  |-78.6  |-135.2  |
-| 8 (EEG) |-91.2  |-89.0 |-82.5  |-74.8  |-84.0  |
-| 16 (sEMG) | -2557.4 (0.6675) |-2557.3 (0.715) |-2557.6 (0.7075)  |-2557.5 (0.7675)  |-2557.5 (0.7775)  |
-| 8 (sEMG) |-2557.5 (0.71)  | -2557.5 (0.72) |-2557.5 (0.7975)  |-2557.5 (0.78)  |-2557.4 (0.7975)  |
+| 8 (EEG) | -87.2 |-90.1 |-100.8  |-78.6  |-135.2  |
+| 16 (EEG) |-91.2  |-89.0 |-82.5  |**-74.8**  |-84.0  |
+| 8 (sEMG) | -7.50E-3 |-6.88E-4 |-3.38E-3  |-2.03E-3  |**-3.07E-4**  |
+| 16 (sEMG) |-1.17E-2  | -8.59E-4 |-5.87E-3  |-4.21E-3  |-4.55E-4  |
 
 
 The table below shows comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with no clipping and alpha and beta hyperparameters are set to 0.25 as suggested in the paper.
 
 | Methodology |Default|Full|Indiv|
 |-|-|-|-|
-| 16 (EEG) | -74.8 |-84.2 |-101.9  |
-| 16 (sEMG) | -2557.4 (0.78) |-2557.4 (0.78) |-2557.4 (0.755)  |
+| 16 (EEG) | **-74.8** |-84.2 |-101.9  |
+| 16 + Clip (sEMG) | **-2.52E-4** |**-2.52E-4** |**-2.52E-4**  |
 
 ### PCA/t-SNE Plots
 Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
@@ -175,4 +175,12 @@ Although evaluation is already done automatically for each of the respective VAE
 The `vae_eval.py` may be used via the command line:
 ```
 python vae_eval.py -datapath $target -model $filepath
+```
+
+Optional Arguments:
+
+```
+-all ALL                            Set whether to use all the data for both training and test
+-alpha ALPHA                        For Dual Chain Models, Set the alpha hyperparameter for KL Divergence in the first chain
+-beta BETA                          For Dual Chain Models, Set the beta hyperparameter for KL Divergence in the second chain
 ```
