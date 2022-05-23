@@ -108,14 +108,14 @@ The traditional VAE can be found implemented in `vae_torch.py`.
 usage: python vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-lr LR] [-clip CLIP] [-data DATA] [-datapath DATAPATH]
 
 Arguments:
--subj SUBJ(REQUIRED)    Set the subject number to run feature extraction on
--epochs EPOCHS          Set the number of epochs for which to train the VAE
--features FEATURES      Set the desired number of features to extract from the signal
--lr LR                  Set the learning rate
--clip CLIP              Set maximum gradient threshold
--data DATA              Set which data to analyse, eeg or semg
--datapath DATAPATH      Datapath for the folder containing pre-processed datasets
-
+-subj SUBJ (REQUIRED)               Set the subject number to run feature extraction on
+-epochs EPOCHS                      Set the number of epochs for which to train the VAE
+-features FEATURES                  Set the desired number of features to extract from the signal
+-lr LR                              Set the learning rate
+-clip CLIP                          Set maximum gradient threshold
+-data DATA                          Set which data to analyse, eeg or semg
+-datapath DATAPATH (REQUIRED)       Datapath for the folder containing pre-processed datasets
+-all ALL                            Set whether to use all the data for both training and test
 ```
 
 For example the following command trains a vanilla VAE on subject 1 for 16 latent features, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data for subject 1.
@@ -136,20 +136,21 @@ vae_torch.pt                Final saved model weights using best validation loss
 ### DualChainVAE
 The DualChainVAE can be found implemented in `dual_vae_torch.py`.
 ```
-usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-lr LR] [-clip CLIP] [-alpha ALPHA] [-beta BETA] [-loss LOSS] [-data DATA] [-datapath DATAPATH]
+usage: python dual_vae_torch.py [-subj SUBJ] [-epochs EPOCHS] [-features FEATURES] [-lr LR] [-clip CLIP] [-alpha ALPHA] [-beta BETA] [-loss LOSS] [-data DATA] [-datapath DATAPATH] [-all ALL]
 
 Arguments:
--subj SUBJ(REQUIRED)    Set the subject number to run feature extraction on
--epochs EPOCHS          Set the number of epochs for which to train the VAE
--features FEATURES      Set the desired number of features to extract from the signal
--lr LR                  Set the learning rate
--clip CLIP              Set maximum gradient threshold
--alpha ALPHA            Set the alpha hyperparameter for KL Divergence in the first chain
--beta BETA              Set the beta hyperparameter for KL Divergence in the second chain
--loss LOSS              Uses one of three possible loss functions to train the DCVAE model. 
-                        Default - Default DCVAE loss. Full - Uses entire reconstruction loss. Indiv - Sum of individual chain losses.
--data DATA              Set which data to analyse, eeg or semg
--datapath DATAPATH      Datapath for the folder containing pre-processed datasets
+-subj SUBJ (REQUIRED)               Set the subject number to run feature extraction on
+-epochs EPOCHS                      Set the number of epochs for which to train the VAE
+-features FEATURES                  Set the desired number of features to extract from the signal
+-lr LR                              Set the learning rate
+-clip CLIP                          Set maximum gradient threshold
+-alpha ALPHA                        Set the alpha hyperparameter for KL Divergence in the first chain
+-beta BETA                          Set the beta hyperparameter for KL Divergence in the second chain
+-loss LOSS                          Uses one of three possible loss functions to train the DCVAE model. 
+                                    Default - Default DCVAE loss. Full - Uses entire reconstruction loss. Indiv - Sum of individual chain losses.
+-data DATA                          Set which data to analyse, eeg or semg
+-datapath DATAPATH (REQUIRED)       Datapath for the folder containing pre-processed datasets
+-all ALL                            Set whether to use all the data for both training and test
 ```
 
 For example the following command trains a Dual Chain VAE on subject 1 for 16 total latent features split to 8-8, for 100 epochs, no gradient clipping with a learning rate of 0.0005 on EEG data for subject 1.
