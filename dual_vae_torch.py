@@ -408,7 +408,7 @@ def LDA_1(x,y):
 score = LDA_1(mu_3,y_test)
 print("LDA Score: " + str(score))
 
-f = open("dual_output_LDA.txt", "a")
+f = open("dual_output_LDA_train.txt", "a")
 
 f.write(f"{score}\n")
 
@@ -422,7 +422,7 @@ def LDA_2(x,y):
 
 score = LDA_2(mu_3,y_test)
 
-f = open("dual_output_LDA2.txt", "a")
+f = open("dual_output_LDA_test.txt", "a")
 f.write(f"{score}\n")
 f.close()
 
