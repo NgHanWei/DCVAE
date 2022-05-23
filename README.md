@@ -174,7 +174,7 @@ Although evaluation is already done automatically for each of the respective VAE
 
 The `vae_eval.py` may be used via the command line:
 ```
-python vae_eval.py -datapath $target -model $filepath
+python vae_eval.py -datapath $directory/model_file_name.pt -model $filepath
 ```
 
 Optional Arguments:
@@ -183,4 +183,13 @@ Optional Arguments:
 -all ALL                            Set whether to use all the data for both training and test
 -alpha ALPHA                        For Dual Chain Models, Set the alpha hyperparameter for KL Divergence in the first chain
 -beta BETA                          For Dual Chain Models, Set the beta hyperparameter for KL Divergence in the second chain
+```
+## Pre-trained Models
+
+We provide pre-trained models for the Korea University EEG Dataset which can be found in `pre_trained` folder.
+To run the pre-trained models, use the command lines:
+```
+python vae_eval.py -datapath $directory_containing_folder -model dual -all             # For the pre-trained Dual Chain Model
+python vae_eval.py -datapath $directory_containing_folder -model vanilla -all          # For the pre-trained tuned Vanilla VAE Model
+
 ```
