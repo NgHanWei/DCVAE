@@ -188,6 +188,7 @@ Optional Arguments:
 
 We provide pre-trained models for the Korea University EEG Dataset which can be found in `pre_trained` folder.
 To run the pre-trained models, use the command lines:
+
 For the pre-trained Dual Chain Model
 ```
 python vae_eval.py -datapath $directory_containing_folder -model dual -all
