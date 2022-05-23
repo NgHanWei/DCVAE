@@ -10,9 +10,9 @@ from scipy.signal import decimate
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(
-    description='Preprocessor for KU Data')
-parser.add_argument('--source', type=str, default='D:/sEMG_data/sEMG-dataset/filtered/mat/', help='Path to raw KU data',required=False)
-parser.add_argument('--target', type=str, default='D:/eeg_vrae/pre-processed-semg', help='Path to pre-processed KU data',required=False)
+    description='Preprocessor for sEMG Data')
+parser.add_argument('source', type=str, default='D:/sEMG_data/sEMG-dataset/filtered/mat/', help='Path to raw sEMG data')
+parser.add_argument('target', type=str, default='D:/eeg_vrae/pre-processed-semg', help='Path to pre-processed sEMG data')
 args = parser.parse_args()
 
 src = args.source
@@ -85,7 +85,7 @@ def get_data(subj):
     X_new = np.array([X1,X2,X3,X4,X5,X6,X7,X8,X9,X10])
     print(X_new.shape)
 
-    X_new = X_new * 3000
+    # X_new = X_new * 3000
 
     # Obtain Labels 0 - Extension, 1 - Flexion
     Y = np.array([0,0,0,0,0,1,1,1,1,1])
@@ -100,6 +100,8 @@ with h5py.File(pjoin(out, 'semg_flexex_smt.h5'), 'w') as f:
         X , Y= get_data(subj)
         X = X.astype(np.float32)
         Y = Y.astype(np.int64)
+        print(X.shape)
+        print(Y.shape)
         f.create_dataset('s' + str(subj) + '/X', data=X)
         f.create_dataset('s' + str(subj) + '/Y', data=Y)
        
