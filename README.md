@@ -19,7 +19,7 @@ The results display the test approximated negative log-likelihood scores of the 
 | 16 (sEMG) |-1.17E-2  | -8.59E-4 |-5.87E-3  |-4.21E-3  |-4.55E-4  |
 
 
-The table below shows comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with no clipping and alpha and beta hyperparameters are set to 0.25 as suggested in the paper.
+The table below shows comparison between the use of different loss functions. Default uses the proposed optimisation function based on only the second chain reconstruction loss. Full uses the conventional reconstruction loss between the input and output of the entire network. Indiv uses the sum of individual reconstruction losses of both chains. The baseline model used is a beta-DCVAE for 16 features, with alpha and beta hyperparameters are set to 0.25 as suggested in the paper. No gradient clipping is used for EEG while a clipping threshold of 0.25 is used for sEMG.
 
 | Methodology |Default|Full|Indiv|
 |-|-|-|-|
