@@ -33,17 +33,7 @@ parser.add_argument('-beta', type=float, default= 0.5,
                     help='Beta Hyperparameter for Second Chain KL Divergence', required=False)
 args = parser.parse_args()
 
-string = args.model
 
-x = string.split("_")
-index = x.index('torch')
-x = x[index + 1:]
-
-data = x[0]
-targ_subj = int(x[1])
-filters = int(x[2])
-channels = int(x[3])
-features = int(x[4][:2])
 
 if args.pretrained == True:
     data = 'eeg'
@@ -51,6 +41,19 @@ if args.pretrained == True:
     filters = 8
     channels = 62
     features = 16
+else:
+    string = args.model
+
+    x = string.split("_")
+    index = x.index('torch')
+    x = x[index + 1:]
+
+    data = x[0]
+    targ_subj = int(x[1])
+    filters = int(x[2])
+    channels = int(x[3])
+    features = int(x[4][:2])
+
 
 if data == 'eeg':
     datapath = args.datapath + '/KU_mi_smt.h5'
