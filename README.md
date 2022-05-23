@@ -24,7 +24,7 @@ The table below shows comparison between the use of different loss functions. De
 | Methodology |Default|Full|Indiv|
 |-|-|-|-|
 | 16 (EEG) | **-74.8** |-84.2 |-101.9  |
-| 16 + Clip (sEMG) | **-2.52E-4** |**-2.52E-4** |**-2.52E-4**  |
+| 2 + Clip (sEMG) | **-2.52E-4** |**-2.52E-4** |**-2.52E-4**  |
 
 ### PCA/t-SNE Plots
 Qualitative Analysis of VAE and DCVAE with 16 features, trained on 100 epochs.
