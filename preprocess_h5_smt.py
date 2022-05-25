@@ -9,8 +9,6 @@ from scipy.io import loadmat
 from scipy.signal import decimate
 from tqdm import tqdm
 
-#python preprocess_h5_smt.py D:\DeepConvNet D:\DeepConvNet\pre-processed --foldered-data
-
 parser = argparse.ArgumentParser(
     description='Preprocessor for KU Data')
 parser.add_argument('source', type=str, help='Path to raw KU data', default='D:\DeepConvNet')
