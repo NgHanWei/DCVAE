@@ -1,5 +1,5 @@
 from cmath import inf
-from vrae.utils import *
+from vae.utils import *
 from vae_models import dualchain_vae
 from vae_models import vanilla_vae
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
