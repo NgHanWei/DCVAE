@@ -24,7 +24,7 @@ torch.backends.cudnn.deterministic = True
 parser = argparse.ArgumentParser(
     description='Model Evaluation')
 parser.add_argument('-all', default=False, action='store_true')
-parser.add_argument('-pretrained', default=False, action='store_true')
+parser.add_argument('-pretrained', default=True, action='store_true')
 parser.add_argument('-datapath', type=str, help='Path to training data',required=True)
 parser.add_argument('-model', type=str, help='Path to model data',required=True)
 parser.add_argument('-alpha', type=float, default= 0.5,
