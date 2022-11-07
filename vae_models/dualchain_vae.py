@@ -1,16 +1,23 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from .flow.Flow import *
 
 # define DCVAE
 class DCVAE(nn.Module):
-    def __init__(self, filters, channels, features, data_type):
+    def __init__(self, filters, channels, features, data_type,flow):
         super(DCVAE, self).__init__()
  
         self.filters = filters
         self.channels = channels
         self.features = features
         self.data_type = data_type
+
+        self.is_flow = flow
+
+        if flow == True:
+            self.flow = Flow(features, 'radial', 8)
+            self.flow_2 = Flow(features, 'radial',8)
 
         # encoder
         self.layer1 = nn.Sequential(
@@ -105,7 +112,10 @@ class DCVAE(nn.Module):
         std = torch.exp(0.5*log_var) # standard deviation
         eps = torch.randn_like(std) # `randn_like` as we need the same size
         sample = mu + (eps * std) # sampling as if coming from the input space
+
         return sample
+
+
 
     def forward(self, x):
         # encoding
@@ -127,6 +137,8 @@ class DCVAE(nn.Module):
         # print(log_var.shape)
         # get the latent vector through reparameterization
         z = self.reparameterize(mu, log_var)
+        if self.is_flow == True:
+            z , log_det = self.flow(z)
         # print(z.shape)
 
         # decoding
@@ -164,6 +176,8 @@ class DCVAE(nn.Module):
         log_var_2 = self.dense_features_2(x1) + 1e-8
         # get the latent vector through reparameterization
         z_2 = self.reparameterize(mu_2, log_var_2)
+        if self.is_flow == True:
+            z_2 , log_det_2 = self.flow_2(z_2)
 
         # decoding
         x1 = F.relu(self.dense2_2(z_2))
@@ -180,4 +194,7 @@ class DCVAE(nn.Module):
         reconstruction_2 = self.output_2(x1)
 
         # decoding
-        return reconstruction, mu, log_var, new_inputs, reconstruction_2, mu_2, log_var_2
+        if self.is_flow == True:
+            return reconstruction, mu, log_var, new_inputs, reconstruction_2, mu_2, log_var_2,log_det,log_det_2
+        else:          
+            return reconstruction, mu, log_var, new_inputs, reconstruction_2, mu_2, log_var_2

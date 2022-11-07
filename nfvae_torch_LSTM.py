@@ -1,6 +1,6 @@
 from cgi import test
 from vrae.utils import *
-from vae_models import vanilla_vae
+from vae_models import nf_vae
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 import pandas as pd
@@ -39,13 +39,9 @@ parser.add_argument('-data', type=str, default= 'eeg',
                     help='Choose Type of Data: eeg or semg', required=False)
 parser.add_argument('-datapath', type=str, help='Path to data',required=True)
 parser.add_argument('-all', default=False, action='store_true')
-parser.add_argument('-flow', default=False, action='store_true')
 args = parser.parse_args()
 
 targ_subj = args.subj
-
-if args.flow == True:
-    print("Using Normalising Flows")
 
 # Get data from single subject.
 def get_data(subj):
@@ -151,7 +147,7 @@ lr = 0.0005
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ## Define Model
-model = vanilla_vae.VanillaVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+model = nf_vae.NFVAE_LSTM(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
 # print(model)
 optimizer = optim.Adam(model.parameters(), lr=lr,betas=(0.5, 0.999),weight_decay=0.5*lr)
 criterion = nn.BCELoss(reduction='sum')
@@ -174,9 +170,9 @@ def recon_loss(outputs,targets):
 
     return recon_loss
 
-def final_loss(bce_loss, mu, logvar):
+def final_loss(bce_loss, mu, logvar,log_det):
     BCE = bce_loss 
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) - 0.5 * torch.sum(log_det)
     return BCE + KLD
 
 def fit(model):
@@ -185,9 +181,9 @@ def fit(model):
     # For each batch
     for batch in tqdm(range(0,len(data_load))):
         optimizer.zero_grad()
-        reconstruction, mu, logvar = model(data_load[batch])
+        reconstruction, mu, logvar,log_det = model(data_load[batch])
         bce_loss = recon_loss(reconstruction,data_load[batch])
-        loss = final_loss(bce_loss, mu, logvar)
+        loss = final_loss(bce_loss, mu, logvar,log_det)
         running_loss += loss.item()
         loss.backward()
         if args.clip > 0:
@@ -205,27 +201,54 @@ def validate(model):
     with torch.no_grad():
         # For each image in batch
         # for batch in range(0,len(X_valid)):
-        reconstruction, mu, logvar = model(X_valid)
-        bce_loss = recon_loss(reconstruction,X_valid)
-        loss = final_loss(bce_loss, mu, logvar)
-        running_loss += loss.item()
-        full_recon_loss += bce_loss.item()
+        val_loss_2 = 0
+        for i in range(0,3):
+            if i ==2:
+                X_valid_2 = X_valid[len(X_valid)-16:len(X_valid)]
+                reconstruction, mu, logvar,log_det = model(X_valid_2)
+                recon_1 = recon_loss(reconstruction[8:],X_valid_2[8:])
+                KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) - 0.5 * torch.sum(log_det)
+                val_loss_2 += ((recon_1) + KLD_1/(8/40))
+            else:
+                X_valid_2 = X_valid[i*16:(i+1)*16]
+                reconstruction, mu, logvar,log_det = model(X_valid_2)
+                recon_1 = recon_loss(reconstruction,X_valid_2)
+                KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) - 0.5 * torch.sum(log_det)
+                val_loss_2 += ((recon_1) + KLD_1/(16/40))
+        val_loss_2 = val_loss_2/40
 
-    val_loss = running_loss/len(X_valid)
-    full_recon_loss = full_recon_loss/len(X_valid)
+        for i in range(0,3):
+            if i == 2:
+                X_valid_2 = X_valid[len(X_valid)-16:len(X_valid)]
+            else:
+                X_valid_2 = X_valid[i*16:(i+1)*16]
+            # print(X_valid_2.shape)
+            reconstruction, mu, logvar,log_det = model(X_valid_2)
+            bce_loss = recon_loss(reconstruction,X_valid_2)
+            loss = final_loss(bce_loss, mu, logvar,log_det)
+            running_loss += loss.item()
+            full_recon_loss += bce_loss.item()
+
+    val_loss = running_loss/len(X_valid_2)
+    full_recon_loss = full_recon_loss/len(X_valid_2)
     print(f"Recon Loss: {full_recon_loss:.4f}")
-    return val_loss, full_recon_loss
+    return val_loss_2, full_recon_loss
 
 def eval(model):
     model.eval()
     nll_loss_eval = 0
     with torch.no_grad():
-        reconstruction, mu, logvar = model(X_test)
-        recon_1 = recon_loss(reconstruction,X_test)
-        KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-        nll_loss_eval = (recon_1 + KLD_1)/len(X_test)
-        return nll_loss_eval.item()
+        for i in range(0,3):
+            if i ==2:
+                 X_test_2 = X_test[len(X_test)-16:len(X_test)]
+            else:
+                X_test_2 = X_test[i*16:(i+1)*16]
+            reconstruction, mu, logvar,log_det = model(X_test_2)
+            recon_1 = recon_loss(reconstruction,X_test_2)
+            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+            KLD_1 = KLD_1 - 0.5*torch.sum(log_det)
+            nll_loss_eval = (recon_1 + KLD_1)/len(X_test_2)
+            return nll_loss_eval.item()
 
 train_loss = []
 val_loss = []
@@ -244,7 +267,7 @@ for epoch in range(epochs):
     #Save best model
     if val_epoch_loss < best_val_loss:
         best_val_loss = val_epoch_loss
-        torch.save(model.state_dict(),file_name)
+        torch.save(model.state_dict(),"./vae_torch.pt")
         print(f"Saving Model... Best Val Loss: {best_val_loss:.4f}")
 
     print(f"Train Loss: {train_epoch_loss:.4f}")
@@ -261,8 +284,8 @@ df = pd.DataFrame(np.asarray(eval_loss))
 filepath = 'vae_eval.xlsx'
 df.to_excel(filepath, index=False)
 
-model = vanilla_vae.VanillaVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
-model.load_state_dict(torch.load(file_name))
+model = nf_vae.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+model.load_state_dict(torch.load("./vae_torch.pt"))
 
 
 # open('vae_output_LDA.txt', 'w').close()
@@ -273,39 +296,48 @@ model.load_state_dict(torch.load(file_name))
 ## Anomaly Detection
 model.eval()
 with torch.no_grad():
-    reconstruction, mu, logvar = model(X_test)
-    reconstruction_train, mu_train, logvar_train = model(X_train)
-    test_recon_loss = recon_loss(reconstruction,X_test)
+    test_recon_loss = 0
+    for i in range(0,3):
+        if i ==2:
+            X_test_2 = X_test[len(X_test)-16:len(X_test)]
+            X_valid_2 = X_valid[len(X_valid)-16:len(X_valid)]
+        else:
+            X_test_2 = X_test[i*16:(i+1)*16]
+            X_valid_2 = X_valid[i*16:(i+1)*16]
+        reconstruction, mu, logvar,log_det = model(X_test_2)
+        test_recon_loss += recon_loss(reconstruction,X_test_2)
+    test_recon_loss = 40/48 * test_recon_loss
+    print("Test Recon Loss: " + str(test_recon_loss))
 
-if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'eeg':
-    # print("Anomaly Detected")
-    index_list = []
+# if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'eeg':
+#     # print("Anomaly Detected")
+#     index_list = []
 
-    model.eval()
-    with torch.no_grad():
-        total_loss = 0
-        data_test = torch.split(X_test,1)
-        for i in range(0,len(data_test)):
-            reconstruction, mu, logvar = model(data_test[i])
-            recon_1 = recon_loss(reconstruction,data_test[i])
-            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-            nll_loss = (recon_1 + KLD_1)
-            if recon_1 > 50000 or torch.isnan(test_recon_loss):
-                index_list.append(i)
-            total_loss += nll_loss
+#     model.eval()
+#     with torch.no_grad():
+#         total_loss = 0
+#         data_test = torch.split(X_test,1)
+#         for i in range(0,len(data_test)):
+#             reconstruction, mu, logvar,log_det = model(data_test[i])
+#             recon_1 = recon_loss(reconstruction,data_test[i])
+#             KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+#             nll_loss = (recon_1 + KLD_1)
+#             if recon_1 > 50000 or torch.isnan(test_recon_loss):
+#                 index_list.append(i)
+#             total_loss += nll_loss
 
-        if len(index_list) == 40:
-            index_list = []
-            for i in range(0,len(data_test)):
-                reconstruction, mu, logvar = model(data_test[i])
-                recon_1 = recon_loss(reconstruction,data_test[i])
-                if recon_1 > 100000 or torch.isnan(recon_1):
-                    index_list.append(i)
+#         if len(index_list) == 40:
+#             index_list = []
+#             for i in range(0,len(data_test)):
+#                 reconstruction, mu, logvar,log_det = model(data_test[i])
+#                 recon_1 = recon_loss(reconstruction,data_test[i])
+#                 if recon_1 > 100000 or torch.isnan(recon_1):
+#                     index_list.append(i)
 
-    old_list = list(range(0,40))
-    new_list = [number for number in old_list if number not in index_list]
-    X_test = X_test[new_list,:,:,:]
-    y_test = y_test[new_list]
+#     old_list = list(range(0,40))
+#     new_list = [number for number in old_list if number not in index_list]
+#     X_test = X_test[new_list,:,:,:]
+#     y_test = y_test[new_list]
 
 
 # Get Results
@@ -313,10 +345,19 @@ if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'e
 
 model.eval()
 with torch.no_grad():
-    reconstruction, mu, logvar = model(X_test)
-    reconstruction_train, mu_train, logvar_train = model(X_train)
-    test_recon_loss = recon_loss(reconstruction,X_test)
-    print("Test Recon Loss: " + str(recon_loss(reconstruction,X_test)))
+    test_recon_loss = 0
+    for i in range(0,3):
+        if i ==2:
+            X_test_2 = X_test[len(X_test)-16:len(X_test)]
+        else:
+            X_test_2 = X_test[i*16:(i+1)*16]
+        reconstruction, mu, logvar,log_det = model(X_test_2)
+        # reconstruction_train, mu_train, logvar_train,log_det_train = model(X_train)
+        test_recon_loss += recon_loss(reconstruction,X_test_2)
+    test_recon_loss = 40/48 * test_recon_loss
+    print("Test Recon Loss: " + str(test_recon_loss))
+
+    # reconstruction_train, mu_train, logvar_train,log_det_train = model(X_train)
 
 # Plot results
 X_train_np = X_test.cpu().detach().numpy()
@@ -328,10 +369,10 @@ plt.plot(reconstruction[0,0,0,:])
 # plt.show()
 
 mu = mu.cpu().detach().numpy()
-mu_train = mu_train.cpu().detach().numpy()
+# mu_train = mu_train.cpu().detach().numpy()
 ## Latent Space Extracted Features
 plt.plot(mu)
-plt.show()
+# plt.show()
 
 # fig, axs = plt.subplots(features, sharex=True, sharey=True, gridspec_kw={'hspace': 0})
 # fig.suptitle('Learned Latent Features')
@@ -342,43 +383,39 @@ plt.show()
 # for i in range(0,features):
 #     axs[i].plot(mu[:,i], linewidth=3, color=colors[i])
 
-# # Hide x labels and tick labels for all but bottom plot.
+# Hide x labels and tick labels for all but bottom plot.
 # for ax in axs:
 #     ax.label_outer()
 
 # plt.show()
 
 # print(mu.shape)
-for i in range(0,200):
-    y_test[i] = 0
-for i in range(200,400):
-    y_test[i] = 1
-plot_clustering(mu, y_test, engine='matplotlib', download = False)
+# plot_clustering(mu, y_test, engine='matplotlib', download = False)
 
-def LDA(x,y):
-    lda = LinearDiscriminantAnalysis()
-    lda.fit(mu_train,y_train)
-    lda_score = lda.score(x,y)
-    return lda_score
+# def LDA(x,y):
+#     lda = LinearDiscriminantAnalysis()
+#     lda.fit(mu_train,y_train)
+#     lda_score = lda.score(x,y)
+#     return lda_score
 
-score = LDA(mu,y_test)
-print("LDA Score: " + str(score))
+# score = LDA(mu,y_test)
+# print("LDA Score: " + str(score))
 
-f = open("vae_output_LDA_train.txt", "a")
-f.write(f"{score}\n")
-f.close()
+# f = open("vae_output_LDA_train.txt", "a")
+# f.write(f"{score}\n")
+# f.close()
 
-def LDA_2(x,y):
-    lda = LinearDiscriminantAnalysis()
-    lda.fit(x,y)
-    lda_score = lda.score(x,y)
-    return lda_score
+# def LDA_2(x,y):
+#     lda = LinearDiscriminantAnalysis()
+#     lda.fit(x,y)
+#     lda_score = lda.score(x,y)
+#     return lda_score
 
-score = LDA_2(mu,y_test)
+# score = LDA_2(mu,y_test)
 
-f = open("vae_output_LDA_test.txt", "a")
-f.write(f"{score}\n")
-f.close()
+# f = open("vae_output_LDA_test.txt", "a")
+# f.write(f"{score}\n")
+# f.close()
 
 f = open("vae_output_recon.txt", "a")
 f.write(f"{test_recon_loss}\n")
@@ -386,11 +423,21 @@ f.close()
 
 ## NLL
 with torch.no_grad():
-    reconstruction, mu, logvar = model(X_test)
-    recon_1 = recon_loss(reconstruction,X_test)
-    KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-    nll_loss = (recon_1 + KLD_1)/len(X_test)
+    nll_loss = 0
+    for i in range(0,3):
+        if i ==2:
+            X_test_2 = X_test[len(X_test)-16:len(X_test)]
+            reconstruction, mu, logvar,log_det = model(X_test_2)
+            recon_1 = recon_loss(reconstruction[8:],X_test_2[8:])
+            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) - 0.5 * torch.sum(log_det)
+            nll_loss += ((recon_1*8/40) + KLD_1/(8/40))
+        else:
+            X_test_2 = X_test[i*16:(i+1)*16]
+            reconstruction, mu, logvar,log_det = model(X_test_2)
+            recon_1 = recon_loss(reconstruction,X_test_2)
+            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) - 0.5 * torch.sum(log_det)
+            nll_loss += ((recon_1*16/40) + KLD_1/(16/40))
+    nll_loss = nll_loss/40
     print(nll_loss)
 
 f = open("vae_output_NLL.txt", "a")
