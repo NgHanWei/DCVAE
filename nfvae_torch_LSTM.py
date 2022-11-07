@@ -284,7 +284,7 @@ df = pd.DataFrame(np.asarray(eval_loss))
 filepath = 'vae_eval.xlsx'
 df.to_excel(filepath, index=False)
 
-model = nf_vae.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+model = nf_vae.NFVAE_LSTM(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
 model.load_state_dict(torch.load("./vae_torch.pt"))
 
 
@@ -309,35 +309,35 @@ with torch.no_grad():
     test_recon_loss = 40/48 * test_recon_loss
     print("Test Recon Loss: " + str(test_recon_loss))
 
-# if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'eeg':
-#     # print("Anomaly Detected")
-#     index_list = []
+if (test_recon_loss > 20000 or torch.isnan(test_recon_loss)) and args.data == 'eeg':
+    # print("Anomaly Detected")
+    index_list = []
 
-#     model.eval()
-#     with torch.no_grad():
-#         total_loss = 0
-#         data_test = torch.split(X_test,1)
-#         for i in range(0,len(data_test)):
-#             reconstruction, mu, logvar,log_det = model(data_test[i])
-#             recon_1 = recon_loss(reconstruction,data_test[i])
-#             KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-#             nll_loss = (recon_1 + KLD_1)
-#             if recon_1 > 50000 or torch.isnan(test_recon_loss):
-#                 index_list.append(i)
-#             total_loss += nll_loss
+    model.eval()
+    with torch.no_grad():
+        total_loss = 0
+        data_test = torch.split(X_test,1)
+        for i in range(0,len(data_test)):
+            reconstruction, mu, logvar,log_det = model(data_test[i])
+            recon_1 = recon_loss(reconstruction,data_test[i])
+            KLD_1 = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+            nll_loss = (recon_1 + KLD_1)
+            if recon_1 > 50000 or torch.isnan(test_recon_loss):
+                index_list.append(i)
+            total_loss += nll_loss
 
-#         if len(index_list) == 40:
-#             index_list = []
-#             for i in range(0,len(data_test)):
-#                 reconstruction, mu, logvar,log_det = model(data_test[i])
-#                 recon_1 = recon_loss(reconstruction,data_test[i])
-#                 if recon_1 > 100000 or torch.isnan(recon_1):
-#                     index_list.append(i)
+        if len(index_list) == 40:
+            index_list = []
+            for i in range(0,len(data_test)):
+                reconstruction, mu, logvar,log_det = model(data_test[i])
+                recon_1 = recon_loss(reconstruction,data_test[i])
+                if recon_1 > 100000 or torch.isnan(recon_1):
+                    index_list.append(i)
 
-#     old_list = list(range(0,40))
-#     new_list = [number for number in old_list if number not in index_list]
-#     X_test = X_test[new_list,:,:,:]
-#     y_test = y_test[new_list]
+    old_list = list(range(0,40))
+    new_list = [number for number in old_list if number not in index_list]
+    X_test = X_test[new_list,:,:,:]
+    y_test = y_test[new_list]
 
 
 # Get Results
@@ -391,31 +391,6 @@ plt.plot(mu)
 
 # print(mu.shape)
 # plot_clustering(mu, y_test, engine='matplotlib', download = False)
-
-# def LDA(x,y):
-#     lda = LinearDiscriminantAnalysis()
-#     lda.fit(mu_train,y_train)
-#     lda_score = lda.score(x,y)
-#     return lda_score
-
-# score = LDA(mu,y_test)
-# print("LDA Score: " + str(score))
-
-# f = open("vae_output_LDA_train.txt", "a")
-# f.write(f"{score}\n")
-# f.close()
-
-# def LDA_2(x,y):
-#     lda = LinearDiscriminantAnalysis()
-#     lda.fit(x,y)
-#     lda_score = lda.score(x,y)
-#     return lda_score
-
-# score = LDA_2(mu,y_test)
-
-# f = open("vae_output_LDA_test.txt", "a")
-# f.write(f"{score}\n")
-# f.close()
 
 f = open("vae_output_recon.txt", "a")
 f.write(f"{test_recon_loss}\n")

@@ -1,6 +1,6 @@
 from cgi import test
 from vrae.utils import *
-from vae_models import nf_vae
+from vae_models import nf_vae_orig
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 import pandas as pd
@@ -147,7 +147,7 @@ lr = 0.0005
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ## Define Model
-model = nf_vae.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+model = nf_vae_orig.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
 # print(model)
 optimizer = optim.Adam(model.parameters(), lr=lr,betas=(0.5, 0.999),weight_decay=0.5*lr)
 criterion = nn.BCELoss(reduction='sum')
@@ -258,7 +258,7 @@ df = pd.DataFrame(np.asarray(eval_loss))
 filepath = 'vae_eval.xlsx'
 df.to_excel(filepath, index=False)
 
-model = nf_vae.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
+model = nf_vae_orig.NFVAE(filters=filters,channels=channels,features=features,data_type=args.data,data_length=len(data_load[0][:,0,0,0])).to(device)
 model.load_state_dict(torch.load("./vae_torch.pt"))
 
 
