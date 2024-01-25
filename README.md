@@ -1,4 +1,6 @@
-# DualChainVAE
+# Deep Unsupervised Representation Learning for Feature-Informed EEG Domain Extraction
+
+## DualChainVAE
 Codes for DualChainVAE Pytorch Implementation for extraction of spatiotemporal features. A pytorch implementation of a vanilla VAE counterpart is included. The dataset used for spatiotemporal feature extraction is an EEG Dataset from Korea University consisting of 54 subjects consisting of Left vs Right Motor Imagery. The sEMG dataset includes 4-channel surface EMG data from 40 participants. The gestures in the data are rest or neutral state, extension of the wrist, flexion of the wrist, ulnar deviation of the wrist, radial deviation of the wrist, grip, abduction of all fingers, adduction of all fingers, supination, and pronation. In this study we focus on the flexion extension portion of the data.
 
 ## Model Overview
@@ -196,6 +198,17 @@ python vae_eval.py -datapath $directory_containing_folder -model dual -all
 For the pre-trained tuned Vanilla VAE Model:
 ```
 python vae_eval.py -datapath $directory_containing_folder -model vanilla -all
+```
+
+### Citation
+```
+@article{ng2023deep,
+  title={Deep Unsupervised Representation Learning for Feature-Informed EEG Domain Extraction},
+  author={Ng, Han Wei and Guan, Cuntai},
+  journal={IEEE Transactions on Neural Systems and Rehabilitation Engineering},
+  year={2023},
+  publisher={IEEE}
+}
 ```
 
 ### Licensing
